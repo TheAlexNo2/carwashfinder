@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "CarWashFinder",
-    "slug": "CarWashFinder",
+    "slug": "autowashfinder",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -40,7 +40,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.alexno2.autowashfinder"
     },
     "web": {
       "favicon": "./assets/favicon.png"
