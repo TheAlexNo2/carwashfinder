@@ -7,12 +7,11 @@ import {
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import * as Location from 'expo-location';
-import { AdMobBanner, AdMobInterstitial } from 'expo-ads-admob';
+import Banner from '../ads/Banner';
+import { loadInterstitial, showInterstitial } from '../ads/InterstitialManager';
 import { supabase } from '../supabase';
 
 const GOOGLE_API_KEY = 'AIzaSyCk5wP6T55B_zu75Jx-9TLmpjoVfs93TZQ';
-const BANNER_AD_UNIT_ID = 'ca-app-pub-1972507475258139/2538602180';
-const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-1972507475258139/7100663729';
 const TYPE_FILTERS = ['All', 'Classic', 'Self'];
 const DISTANCES = [5, 10];
 const CACHE_MOVE_THRESHOLD_KM = 0.5;
@@ -122,8 +121,7 @@ export default function MapScreen({ navigation }) {
   const pulseAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    AdMobInterstitial.setAdUnitID(INTERSTITIAL_AD_UNIT_ID);
-    AdMobInterstitial.requestAdAsync().catch(() => {});
+    loadInterstitial();
   }, []);
 
   useEffect(() => {
@@ -247,21 +245,8 @@ export default function MapScreen({ navigation }) {
     })));
   };
 
-  const showInterstitial = async () => {
-    try {
-      const ready = await AdMobInterstitial.getIsReadyAsync();
-      if (ready) {
-        await AdMobInterstitial.showAdAsync();
-      }
-      AdMobInterstitial.requestAdAsync().catch(() => {});
-    } catch (e) {
-      console.log('Interstitial error:', e);
-    }
-  };
-
   const handleMarkerPress = useCallback((wash) => {
-    showInterstitial();
-    navigation.navigate('Detail', { wash });
+    showInterstitial(() => navigation.navigate('DetailScreen', { item: wash }));
   }, [navigation]);
 
   const toggleFavorite = useCallback((id) => {
@@ -416,7 +401,7 @@ export default function MapScreen({ navigation }) {
                 onPress={() => {
                   const washToOpen = { ...selectedWash };
                   hideCard();
-                  setTimeout(() => navigation.navigate('Detail', { wash: washToOpen }), 50);
+                  setTimeout(() => showInterstitial(() => navigation.navigate('DetailScreen', { item: washToOpen })), 50);
                 }}
               >
                 <Text style={styles.viewBtnText}>View →</Text>
@@ -450,7 +435,7 @@ export default function MapScreen({ navigation }) {
             renderItem={({ item }) => (
               <WashCard wash={item} onPress={(wash) => {
                 toggleList();
-                setTimeout(() => navigation.navigate('Detail', { wash }), 100);
+                setTimeout(() => showInterstitial(() => navigation.navigate('DetailScreen', { item: wash })), 100);
               }} />
             )}
           />
@@ -516,13 +501,8 @@ export default function MapScreen({ navigation }) {
         </View>
       </View>
 
-      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
-        <AdMobBanner
-          bannerSize="smartBanner"
-          adUnitID={BANNER_AD_UNIT_ID}
-          servePersonalizedAds
-          onDidFailToReceiveAdWithError={(err) => console.log('Banner error:', err)}
-        />
+      <View style={styles.bannerContainer}>
+        <Banner />
       </View>
 
     </View>
@@ -534,6 +514,7 @@ const BORDER = 'rgba(255,255,255,0.1)';
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0f0f1a' },
+  bannerContainer: { position: 'absolute', bottom: 0, width: '100%' },
   map: { flex: 1 },
   loadingContainer: { flex: 1, backgroundColor: '#0f0f1a', justifyContent: 'center', alignItems: 'center' },
   loadingText: { marginTop: 14, color: 'rgba(255,255,255,0.5)', fontSize: 15 },

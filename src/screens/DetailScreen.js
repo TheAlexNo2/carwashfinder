@@ -5,11 +5,16 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
-import { AdMobInterstitial } from 'expo-ads-admob';
+import Constants from 'expo-constants';
+import Banner from '../ads/Banner';
+import { loadInterstitial } from '../ads/InterstitialManager';
 import { supabase } from '../supabase';
 
 const SUPABASE_STORAGE_URL = 'https://klrppkphsiunguhjiyhh.supabase.co/storage/v1/object/public/car-wash-photos/';
-import { OPENAI_API_KEY } from '@env';
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+  || process.env.EXPO_PUBLIC_OPENAI_API_KEY
+  || Constants.expoConfig?.extra?.openaiApiKey
+  || '';
 
 // ─── ADMIN CONFIG — schimba PIN-ul doar de aici ───────────────────────────────
 const ADMIN_PIN = '240184'; // <-beau 1 bere
@@ -50,19 +55,13 @@ const BORDER = 'rgba(255,255,255,0.1)';
 const CYAN = '#06b6d4';
 const PURPLE = '#7c3aed';
 const PURPLE_LIGHT = '#a78bfa';
-const INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-1972507475258139/7100663729';
-
 export default function DetailScreen({ route }) {
   useEffect(() => {
-    AdMobInterstitial.setAdUnitID(INTERSTITIAL_AD_UNIT_ID);
-    AdMobInterstitial.requestAdAsync().catch(() => {});
+    loadInterstitial();
   }, []);
 
-  useEffect(() => {
-    showInterstitial();
-  }, []);
-
-  const { wash } = route.params ?? {};
+  const { item } = route.params;
+  const wash = item;
   if (!wash) return null;
 
   const [washData, setWashData] = useState(wash);
@@ -109,18 +108,6 @@ export default function DetailScreen({ route }) {
       if (result.data.length > 0) setAvgRating((result.data.reduce((s, r) => s + r.rating, 0) / result.data.length).toFixed(1));
     }
     setLoading(false);
-  };
-
-  const showInterstitial = async () => {
-    try {
-      const ready = await AdMobInterstitial.getIsReadyAsync();
-      if (ready) {
-        await AdMobInterstitial.showAdAsync();
-      }
-      AdMobInterstitial.requestAdAsync().catch(() => {});
-    } catch (e) {
-      console.log('Interstitial error:', e);
-    }
   };
 
   var doUpload = async (uri, base64) => {
@@ -294,7 +281,8 @@ export default function DetailScreen({ route }) {
   );
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 50 }}>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 50 }}>
       <StatusBar barStyle="light-content" backgroundColor="#0f0f1a" />
 
       {/* Photo Section */}
@@ -528,12 +516,17 @@ export default function DetailScreen({ route }) {
         </View>
       </Modal>
 
-    </ScrollView>
+      </ScrollView>
+      <View style={styles.bannerContainer}>
+        <Banner />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0f0f1a' },
+  bannerContainer: { position: 'absolute', bottom: 0, width: '100%' },
   imageContainer: { width: '100%', height: 240, position: 'relative' },
   heroImage: { width: '100%', height: 240 },
   imageOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, backgroundColor: 'rgba(15,15,35,0.6)' },
