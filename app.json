@@ -7,6 +7,21 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "plugins": [
+      "react-native-google-mobile-ads"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "83c93348-0f93-49b8-8058-bdfcba88633d"
+      },
+      "supabaseUrl": "https://klrppkphsiunguhjiyjhh.supabase.co",
+      "supabaseAnonKey": "sb_publishable_dSC4ftwcYpgj7dVKlh2AyQ_my20SERr",
+      "openaiApiKey": "AIzaSyAHR8JGVOjf4lBgNgV2zAnGMhGdDwyWplA",
+      "admobAndroidBanner": "ca-app-pub-1972507475258139/2538602180",
+      "admobAndroidInterstitial": "ca-app-pub-1972507475258139/7100663729",
+      "admobIosBanner": "",
+      "admobIosInterstitial": ""
+    },
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
