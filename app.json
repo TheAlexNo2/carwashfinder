@@ -8,7 +8,12 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
-      "react-native-google-mobile-ads"
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-1972507475258139~7475328275"
+        }
+      ]
     ],
     "extra": {
       "eas": {
